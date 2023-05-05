@@ -4,11 +4,12 @@
 
 ## Introduction
 
-The following article offers a thorough steps on Solidity create2 opcode to precompute the address of a smart contract. I'll describe the technical steps required in using create2 opcode in a smart contract in great detail. 
+The following article offers thorough steps on using the Solidity create2 opcode to precompute the address of a smart contract. I will describe in great detail the technical steps required to use the create2 opcode in a smart contract. 
 <br/>
-create2 is an opcode that is used to predict the address of a contract before depployment. It precompute the address of a contract without deploying it.
 
-In eip-1014 (https://eips.ethereum.org/EIPS/eip-1014), create2 was introduced.
+create2 is an opcode that is used to predict the address of a contract before deployment. It precompute the address of a contract without deploying it.
+
+In [EIP-1014](https://eips.ethereum.org/EIPS/eip-1014), create2 was introduced.
 
 ## Table of Contents
 
@@ -31,7 +32,7 @@ In eip-1014 (https://eips.ethereum.org/EIPS/eip-1014), create2 was introduced.
 
 ## Objective
 
-By the end of this Article you should be able to write a contract and Deploy it with create2 on the CELO Blockchain
+By the end of this Article you should be able to write a contract and Deploy it with create2 on the CELO Blockchain.
 
 ## Prerequisites
 
