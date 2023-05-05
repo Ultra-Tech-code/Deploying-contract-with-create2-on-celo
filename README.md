@@ -47,7 +47,8 @@ By the end of this tutorial you should be able to write a contract and deploy it
 
 - A text editor: For this tutorial, we will make use of [Visual Studio Code](https://code.visualstudio.com/).
 - You will need to have [Node.js](https://nodejs.org/en) installed on your system, with version V10. or higher.
-- Npm (node package manager) used for installing and managing dependencies.
+- Node Package Manager [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm) used for installing and managing dependencies.
+-  Install [MetaMask Wallet](https://metamask.io/download/).
 
 ## What Is Create2 Opcode?
 
@@ -287,7 +288,7 @@ contract TestContract {
     }
 
     /**
-     * @notice  . A View Function to get the ether balance of the contract
+     * @notice  . A View Function to get the celo balance of the contract
      * @dev     . returns ether balance of the contract
      */
     function getBalance() public view returns (uint256) {
@@ -295,7 +296,7 @@ contract TestContract {
     }
 
     /**
-     * @notice  . A Function to withdraw the ether balance of the contract
+     * @notice  . A Function to withdraw the celo balance of the contract
      * @dev     . Only admin/owner can call the function
      */
     function withdraw() external onlyAdmin {
@@ -303,7 +304,7 @@ contract TestContract {
     }
 
     /**
-     * @notice  . A Function to receive ether sent directly to this contract without a function call.
+     * @notice  . A Function to receive celo Token sent directly to this contract without a function call.
      * @dev     . similar to a fallback function.
      */
     receive() external payable{}
@@ -437,12 +438,12 @@ Then, let’s deploy our contract using this command line in our VSCode terminal
 npx hardhat run scripts/deploy.ts --network alfajores
 ```
 The breakdown of the script:
-- I deployed the Factory contract and log the factory `contract address`
-- I get the `bytecode` and log it(passing in the parameters required)
-- I generate `salt` by passing 1 to it and also log it
-- I get precomputed address by passing salt and bytecode to it and also log it
-- I called the createContract function and passed in salt and bytecode and also log the result
-- I Interacted with the `TestContract` contract passing in the deployed address.
+- Deployed the Factory contract and log the factory `contract address`
+- Get the `bytecode` and log it(passing in the parameters required)
+- Generate `salt` by passing 1 to it and also log it
+- Get precomputed address by passing salt and bytecode to it and also log it
+- Called the `createContract` function and passed in salt and bytecode and also log the result
+- Interacted with the `TestContract` contract passing in the deployed address.
 
 You will discover that the deployed address and the precomputed address are the same thing.
 So, before deployement, we can always check for the contract address that will be generated when a particular bytecode is attached to a contract bytecode in **create2**
@@ -451,7 +452,9 @@ So, before deployement, we can always check for the contract address that will b
 
 ### Conclusion
 
-In summary, using create2 in Solidity provides several benefits to developers, including cost savings, improved user experience, contract upgradeability, and better security.
+Therefore, deploying a contract with create2 on Celo allows you to pre-determine the contract's address before deploying it to the network, making it more efficient and cost-effective. This is achieved by calculating the address of the contract using the contract's bytecode, a salt value and the address of the creator account. By using create2, you can ensure that the contract address will be the same across different Ethereum-based networks, reducing the risk of errors or discrepancies. To deploy a contract with create2 on Celo, you can use the Celo SDK or web3.js library to interact with the Celo network and follow the specific steps outlined in the Celo documentation.
+
+Hence, using create2 in Solidity provides several benefits to developers, including cost savings, improved user experience, contract upgradeability, and better security.
 <br/>
 
 The link to my project repository can be found [here](https://github.com/Ultra-Tech-code/Deployment-with-create2).
