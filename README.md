@@ -72,7 +72,7 @@ To use create2 opcode, we need to define three parameters: the **bytecode** of t
 5. **Better security**: Since the contract address can be calculated before deployment, **create2** can be used to create contracts that are more secure and resistant to attacks. By precomputing the contract address, the contract can be deployed without revealing the contract code or the salt value, which can help prevent potential attacks.
 
 
- NB: If you try to deploy twice, it reverts. you can only deploy a contract with the same bytescode and the same salt once.
+ >**_Note_**: If you try to deploy twice with the same arguments, it reverts. you can only deploy a contract with the same bytescode and the same salt once.
 
 ### Differences between create and create2
 
