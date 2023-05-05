@@ -83,7 +83,6 @@ To use CREATE2 opcode, we need to define three parameters:
 | ----------- | ----------- |
 | 1. The address is determined by the factory contract's nonce.     | 1. creates a new contract at a deterministic address based on the provided salt value.        |
 | 2. Factory nonce is increased by 1 Everytime CREATE is called   |  2. The address is not dependent on the the nonce of the factory when it's called.      |
-| ----------|-----------|
 
 In this tutorial, we will be making use of the cloned factory pattern.
 
@@ -148,74 +147,81 @@ pragma solidity ^0.8.0;
 import "./TestContract.sol";
 
 contract Factory {
-
+    // Event emitted when a new contract is deployed
     event DeployedContract(address indexed contractAddress);
 
     /**
-     * @notice  . A function to Get bytecode of contract to be deployed
-     * @dev     . returns bytes [bytes of TestContract + constructor argument]
-     * @param   _owner  . An address[TestContract constructor arguments]
-     * @param   _name  . A string[TestContract constructor arguments]
-    */
-    function getContractBytecode(address _owner, string calldata  _name) public pure returns (bytes memory) {
+     * @notice  A function to get bytecode of contract to be deployed
+     * @dev     Returns bytes [bytes of TestContract + constructor argument]
+     * @param   _owner An address[TestContract constructor arguments]
+     * @param   _name  A string[TestContract constructor arguments]
+     */
+    function getContractBytecode(address _owner, string calldata _name) public pure returns (bytes memory) {
+        // Get the bytecode of the TestContract
         bytes memory bytecode = type(TestContract).creationCode;
-
+        // Append the constructor arguments to the bytecode
         return abi.encodePacked(bytecode, abi.encode(_owner, _name));
     }
 
     /**
-     * @notice  . A function to Compute address of the contract to be deployed
-     * @dev     . returns address where the contract will deployed to if deployed with create2
-     * @param   salt: unique bytes used to precompute an address
-    */
-    function getAddress(bytes32 salt, bytes memory bytecode) public view returns (address) {
+     * @notice  A function to compute address of the contract to be deployed
+     * @dev     Returns address where the contract will be deployed to if deployed with create2
+     * @param   _salt     A unique bytes used to precompute an address
+     * @param   _bytecode Byte code of the contract to be deployed
+     */
+    function getAddress(bytes32 _salt, bytes memory _bytecode) public view returns (address) {
+        // Compute the predicted address of the contract
         address predictedAddress = address(uint160(uint(keccak256(
             abi.encodePacked(
                 bytes1(0xff),
-                address(this), 
-                salt, 
-                keccak256(bytecode) 
+                address(this),
+                _salt,
+                keccak256(_bytecode)
             )
         ))));
-      
         return predictedAddress;
     }
 
     /**
-     * @notice  . A function to create Contract using create2
-     * @dev     . returns address of the new contract. revert if called with the same parameter more than once
-     * @param   salt  . A unique bytes used to precompute an address
-     * @param   bytecode  .byte code of the contract to be deployed
-    */
-    function createContract(bytes32 salt, bytes memory bytecode) public{
+     * @notice  A function to create Contract using create2
+     * @dev     Returns address of the new contract. Reverts if called with the same parameter more than once
+     * @param   _salt     A unique bytes used to precompute an address
+     * @param   _bytecode Byte code of the contract to be deployed
+     */
+    function createContract(bytes32 _salt, bytes memory _bytecode) public {
+        // Create the contract using create2
         address contractAddress;
         assembly {
-            contractAddress := create2(0, add(bytecode, 0x20), mload(bytecode), salt)
+            contractAddress := create2(0, add(_bytecode, 0x20), mload(_bytecode), _salt)
+            // Revert if the contract creation failed
             if iszero(extcodesize(contractAddress)) {
                 revert(0, 0)
             }
         }
-
+        // Ensure that the contract was deployed successfully
+        require(contractAddress != address(0), "Factory: Failed to deploy contract");
+        // Emit an event for the deployed contract
         emit DeployedContract(contractAddress);
     }
 
-     /**
-     * @notice  . An helper function to get the bytes32 value of a number
-     * @dev     . returns bytes32
-     * @param   _salt  . A unique uint value
-    */
+    /**
+     * @notice  A helper function to get the bytes32 value of a number
+     * @dev     Returns bytes32
+     * @param   _salt  A unique uint value
+     */
     function generateBytes(uint _salt) external pure returns(bytes32){
+        // Convert the uint value to bytes32
         bytes32 salt = bytes32(_salt);
         return salt;
-        
     }
 }
+
 ```
 
 The breakdown of the contract:
 
 - The License was specified.
-- The Solidity v\Version was set.
+- The Solidity Version was set.
 - The contract that we are deploying [Testcontract] is imported.
 
 - `getContractBytecode()`: function returns the bytecode of the contract we want to deploy.`bytecode` is what the evm understand, our Solidity code is compiled to bytecode and stored on the evm so we can interact with it. It takes in the constructor argument of the contract we want to get the bytecode and encode the contract bytecode with the constructor parameter passed in to the function.
@@ -248,7 +254,7 @@ Finally, the `DeployedContract` event is emitted with the address of the new con
 
 - `generateBytes()` function: is an helper function to compute the bytes32 value of any unsigned integer.
 
-#### TestContract Explained
+#### TestContract Explained:
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -272,6 +278,8 @@ contract TestContract {
     * @param   _walletname  . The wallet name 
     **/
     constructor(address _owner, string memory _walletname) payable {
+        require(_owner != address(0), "Invalid address");
+        require(bytes(_walletname).length > 0, "Wallet name cannot be empty");
         admin = _owner;
         walletName = _walletname;
     }
@@ -282,6 +290,8 @@ contract TestContract {
      * @param   _newAdmin  . The Address of the new admin/owner
      */
     function transferOwnership(address _newAdmin) external onlyAdmin {
+        require(_newAdmin != address(0), "Invalid address");
+        require(_newAdmin != admin, "New admin cannot be the same as current admin");
         admin = _newAdmin;
     }
 
@@ -298,6 +308,7 @@ contract TestContract {
      * @dev     . Only admin/owner can call the function
      */
     function withdraw() external onlyAdmin {
+        require(address(this).balance > 0, "Insufficient balance");
         payable(msg.sender).transfer(address(this).balance);
     }
 
@@ -305,8 +316,11 @@ contract TestContract {
      * @notice  . A Function to receive ether sent directly to this contract without a function call.
      * @dev     . similar to a fallback function.
      */
-    receive() external payable{}
+    receive() external payable {
+        require(msg.value > 0, "Invalid value");
+    }
 }
+
 ```
 - `TestContract` is a simple wallet contract.
 
@@ -333,25 +347,44 @@ ETHERSCAN_API_KEY = <ETHERSCAN_API_KEY>
 Here’s an example of how to add the Celo network configuration to your "hardhat.config.ts file":
 
 ```typescript
+// Importing the HardhatUserConfig type from the hardhat/config module
 import { HardhatUserConfig } from "hardhat/config";
+
+// Importing the Hardhat toolbox module
 import "@nomicfoundation/hardhat-toolbox";
+
+// Importing the dotenv module and calling the config() method to load the environment variables
 require("dotenv").config();
 
+// Defining a type for HttpNetworkAccountsUserConfig
 type HttpNetworkAccountsUserConfig = any;
+
+// Creating a Hardhat configuration object
 const config: HardhatUserConfig = {
+  // Specifying the Solidity compiler version
   solidity: "0.8.0",
+  
+  // Configuring the "alfajores" network
   networks: {
     alfajores: {
+      // Setting the URL for the Alfajores network RPC endpoint
       url: "https://alfajores-forno.celo-testnet.org",
+      
+      // Setting the accounts that will be used to deploy contracts and sign transactions
       accounts: [process.env.PRIVATE_KEY] as HttpNetworkAccountsUserConfig | undefined,
+      
+      // Setting the chain ID for the Alfajores network
       chainId: 44787,
     }
   },
+  
+  // Configuring Etherscan API key
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY
   }
 };
 
+// Exporting the configuration object
 export default config;
 
 ```
@@ -362,60 +395,59 @@ Next thing is to write our deploy scripts:
 import { ethers } from "hardhat";
 
 async function main() {
-  const Factory = await ethers.getContractFactory("Factory");
-  const factory = await Factory.deploy();
+  try {
+    const Factory = await ethers.getContractFactory("Factory");
+    const factory = await Factory.deploy();
 
-  await factory.deployed();
+    await factory.deployed();
 
-  console.log(`factory deployed to ${factory.address}`);
+    console.log(`factory deployed to ${factory.address}`);
 
-         /** Interact with the factory contract */
-  const contract = await ethers.getContractAt("Factory", factory.address);
+    /** Interact with the factory contract */
+    const contract = await ethers.getContractAt("Factory", factory.address);
 
     //Get bytecode of a contract
-  const bytecode = await contract.getContractBytecode("0x12896191de42EF8388f2892Ab76b9a728189260A", "SimpleWallet");
-  console.log(bytecode);
+    const bytecode = await contract.getContractBytecode("0x12896191de42EF8388f2892Ab76b9a728189260A", "SimpleWallet");
+    console.log(bytecode);
 
-  //generate bytes value of a number
-  const salt = await contract.generateBytes(1);
-  console.log("bytes of salt", salt);
+    //generate bytes value of a number
+    const salt = await contract.generateBytes(1);
+    console.log("bytes of salt", salt);
 
-  //get pre computed address of a contract
-  const getAddress = await contract.getAddress(salt, bytecode);
-  console.log("Pre computed address", getAddress);
+    //get pre computed address of a contract
+    const getAddress = await contract.getAddress(salt, bytecode);
+    console.log("Pre computed address", getAddress);
 
-  //deploy the contract
-  const createContract = await contract.createContract(salt, bytecode);
-  const txreceipt =  await createContract.wait()
-  //@ts-ignore
-  const txargs = txreceipt.events[0].args;
-  //@ts-ignore
-  const contractAddress = await txargs.contractAddress
-  console.log("deployed address", contractAddress);
+    //deploy the contract
+    const createContract = await contract.createContract(salt, bytecode);
+    const txreceipt =  await createContract.wait()
+    //@ts-ignore
+    const txargs = txreceipt.events[0].args;
+    //@ts-ignore
+    const contractAddress = await txargs.contractAddress
+    console.log("deployed address", contractAddress);
 
-  /**Interact with the simple wallet contract */
-  const TestContract = await ethers.getContractAt("TestContract", contractAddress);
+    /**Interact with the simple wallet contract */
+    const TestContract = await ethers.getContractAt("TestContract", contractAddress);
 
-  //Get the wallet Name
-  const walletName = await TestContract.walletName();
-  console.log("wallet name", walletName);
+    //Get the wallet Name
+    const walletName = await TestContract.walletName();
+    console.log("wallet name", walletName);
 
-  const admin = await TestContract.admin();
-  console.log("admin", admin);
+    const admin = await TestContract.admin();
+    console.log("admin", admin);
 
-
-/**if you try to create a contract with the same bytecode and salt again. It revert because "Contract already created"*/
-//to deploy a replica of the contract, you need to change the salt value
-  //const createContractagain = await contract.createContract(salt, bytecode);
-
+    /**if you try to create a contract with the same bytecode and salt again. It revert because "Contract already created"*/
+    //to deploy a replica of the contract, you need to change the salt value
+    //const createContractagain = await contract.createContract(salt, bytecode);
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main();
 
 ```
 
