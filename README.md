@@ -77,16 +77,16 @@ To use create2 opcode, we need to define three parameters: the **bytecode** of t
 ### Differences between create and create2
 
 
-With the **CREATE"** opcode the address is determined by the factory contract's nonce.  Factory nonce is increased by 1 every time CREATE is called while 
-With the **create2** opcode creates a new contract at a deterministic address based on the provided salt value. The address is not dependent on the nonce of the factory when it's called.
+With the **CREATE** opcode the address is determined by the factory contract's nonce.  Factory nonce is increased by 1 every time CREATE is called while 
+with the **create2** opcode creates a new contract at a deterministic address based on the provided salt value. The address is not dependent on the nonce of the factory when it's called.
 
-In this tutorial, we will be making use of the cloned factory pattern.
+In this tutorial, we will be making use of the [cloned factory pattern](https://blog.logrocket.com/cloning-solidity-smart-contracts-factory-pattern/#the-cloned-factory-pattern-the-right-pattern-for-deploying-multiple-instances-of-our-solidity-smart-contract).
 
 ## Tutorial
 
 ### Step 1 - Set Up Hardhat Environment
 
-To begin setting up the Hardhat environment for your smart contract implementation, you will first need to create a new folder on your system. You can do this by using the ‘mkdir’ command in your terminal followed by the desired name of your folder. For example:
+To begin setting up the Hardhat environment for your smart contract implementation, you will first need to create a new folder on your system. You can do this by using the `mkdir` command in your terminal followed by the desired name of your folder. For example:
 
 ```bash
 mkdir Deployment-with-create2
@@ -104,7 +104,7 @@ Once you have changed the directory into the folder, you can initialize a new np
 npm init -y
 ```
 
-This will create a “package.json” file in your project folder with default settings.
+This will create a `package.json` file in your project folder with default settings.
 Run the following command to initialize the Hardhat environment and create some default configuration files and folders required for building and testing smart contracts.
 
 ```bash
