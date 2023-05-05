@@ -1,63 +1,65 @@
-# Deploying contract with create2 on CELO
+# Deploying Contract With CREATE2 on Celo
 
 ---
 
-## Introduction
-
-The following article offers a thorough steps on Solidity create2 opcode to precompute the address of a smart contract. I'll describe the technical steps required in using create2 opcode in a smart contract in great detail. 
-<br/>
-create2 is an opcode that is used to predict the address of a contract before depployment. It precompute the address of a contract without deploying it.
-
-In eip-1014 (https://eips.ethereum.org/EIPS/eip-1014), create2 was introduced.
-
 ## Table of Contents
 
-- [Deploying contract with create2 on CELO](#Deploying-contract-with-create2-on-CELO)
-  - [Introduction](#introduction)
+- [Deploying Contract With CREATE2 on Celo](#deploying-contract-with-create2-on-celo)
   - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
   - [Objective](#objective)
   - [Prerequisites](#prerequisites)
   - [Requirements](#requirements)
-  - [What is create2 Opcode?](#What-is-create2-Opcode)
-    - [Benefits of using a create2?](#benefits-of-using-create2)
-    - [Differences between create and create2?](#Differences-between-create-and-create2?)
+  - [What Is Create2 Opcode?](#what-is-create2-opcode)
+    - [Benefits of Using Create2](#benefits-of-using-create2)
+    - [Differences Between Create and Create2](#differences-between-create-and-create2)
   - [Tutorial](#tutorial)
-    - [STEP 1 - Set up Hardhat Environment](#step-1---setup-hardhat-environment)
-    - [STEP 2 - Create your Smart contracts](#step-2---create-your-smart-contracts)
-      - [Factory contract Explained](#Factory-contract-explained)
-      - [TestContract Explained](#TestContract-explained)
-    - [STEP 3 - Deploying your contracts](#step-3---deploying-your-contracts)
+    - [Step 1 - Set Up Hardhat Environment](#step-1---set-up-hardhat-environment)
+    - [Step 2 - Create Your Smart Contracts](#step-2---create-your-smart-contracts)
+      - [Factory Contract Explained](#factory-contract-explained)
+      - [TestContract Explained](#testcontract-explained)
+    - [Step 3 - Deploying Your Contracts](#step-3---deploying-your-contracts)
     - [Conclusion](#conclusion)
+
+## Introduction
+
+The following article offers thorough steps on the Solidity create2 opcode to precompute the address of a smart contract. I'll describe the technical steps required in using the create2 opcode in a smart contract in great detail. 
+<br/>
+create2 is an opcode that is used to predict the address of a contract before deployment. It precomputes the address of a contract without deploying it.
+
+In [eip-1014](https://eips.ethereum.org/EIPS/eip-1014), create2 was introduced.
+
+
 
 ## Objective
 
-By the end of this Article you should be able to write a contract and Deploy it with create2 on the CELO Blockchain
+By the end of this Article, you should be able to write a contract and deploy it with create2 on the Celo blockchain.
 
 ## Prerequisites
 
-- Understanding of Solidity: It is important to have a strong understanding of Solidity as it is the main programming language for creating smart contracts on Celo blockchain.
+- Understanding of [Solidity](https://soliditylang.org/): It is important to have a strong understanding of Solidity as it is the main programming language for creating smart contracts on the Celo blockchain.
 
-- Command line proficiency: Basic familiarity with using command line tools such as Terminal or Command Prompt is necessary for running commands and scripts.
+- Command line proficiency: Basic familiarity with using command line tools such as the terminal or Command Prompt is necessary for running commands and scripts.
 
-- Proficiency in Hardhat: It is essential to have a good grasp of using Hardhat, a development environment designed for writing, testing, and deploying smart contracts on the Celo blockchain.
+- Proficiency in [Hardhat](https://hardhat.org/): It is essential to have a good grasp of using Hardhat, a development environment designed for writing, testing, and deploying smart contracts on the Celo blockchain.
 
 ## Requirements
 
-- A text editor: For this tutorial, we will make use of Visual Studio Code.
-- You will need to have node.js installed on your system, with version V10. or higher.
-- npm (node package manager) used for installing and managing dependencies.
+- A text editor: For this tutorial, we will make use of [Visual Studio Code](https://code.visualstudio.com/).
+- You will need to have [Node.js](https://nodejs.org/en) installed on your system, with version V10. or higher.
+- Npm (node package manager) used for installing and managing dependencies.
 
-## What is create2 Opcode?
+## What Is Create2 Opcode?
 
-Before we dive into how to use create2 opcode, let's first understand what it is. create2 is an Ethereum Virtual Machine (EVM) opcode that creates a new contract at a deterministic address based on the contract's bytecode, a unique salt value, and the hash of the code. The create2 opcode was introduced in the Constantinople hard fork in February 2019.
+Before we dive into how to use the create2 opcode, let's first understand what it is. create2 is an Ethereum Virtual Machine (EVM) opcode that creates a new contract at a deterministic address based on the contract's bytecode, a unique salt value, and the hash of the code. The create2 opcode was introduced in the Constantinople hard fork in February 2019.
 
 The create2 opcode is different from the traditional create opcode, which creates a new contract at a random address. The create2 opcode is deterministic and allows developers to calculate the contract address before deploying the contract.
 
 How to Use create2 Opcode?
 
-To use create2 opcode, we need to define three parameters: the bytecode of the contract, a unique salt value, and the hash of the code. The bytecode of the contract is the compiled version of the smart contract code. The salt value is a random number that is generated by the developer. The code hash is the hash of the bytecode of the contract.
+To use create2 opcode, we need to define three parameters: the **bytecode** of the contract, a unique **salt** value, and the **hash** of the code. The **bytecode** of the contract is the compiled version of the smart contract code. The **salt** value is a random number that is generated by the developer. The **code** hash is the hash of the bytecode of the contract.
 
-### Benefits of using create2
+### Benefits of Using Create2
 
 1. **Deterministic contract creation:**: **create2** allows developers to create smart contracts at deterministic addresses. This means that the address of the contract can be calculated before deployment, making it easier to interact with the contract.
 
@@ -69,57 +71,57 @@ To use create2 opcode, we need to define three parameters: the bytecode of the c
 
 5. **Better security**: Since the contract address can be calculated before deployment, **create2** can be used to create contracts that are more secure and resistant to attacks. By precomputing the contract address, the contract can be deployed without revealing the contract code or the salt value, which can help prevent potential attacks.
 
- NB: If you try to deploy twice, it reverts. you can only deploy a contract with the same bytescode and the same salt once
-### Differences between create and create2
+ NB: If you try to deploy twice, it reverts. you can only deploy a contract with the same bytecode and the same salt once
+### Differences Between Create and Create2
 
-With the **CREATE"** opcode the address is determined by the factory contract's nonce.  Factory nonce is increased by 1 Everytime CREATE is called while 
-With the **create2** opcode creates a new contract at a deterministic address based on the provided salt value. The address is not dependent on the the nonce of the factory when it's called.
+With the **CREATE"** opcode the address is determined by the factory contract's nonce.  Factory nonce is increased by 1 every time CREATE is called while 
+With the **create2** opcode creates a new contract at a deterministic address based on the provided salt value. The address is not dependent on the nonce of the factory when it's called.
 
 In this tutorial, we will be making use of the Cloned factory pattern.
 
 ## Tutorial
 
-### STEP 1 - Set up Hardhat Environment
+### Step 1 - Set Up Hardhat Environment
 
 To begin setting up the Hardhat environment for your smart contract implementation, you will first need to create a new folder on your system. You can do this by using the ‘mkdir’ command in your terminal followed by the desired name of your folder. For example:
 
-```
+```bash
 mkdir Deployment-with-create2
 ```
 
-Next, navigate to your project folder using the ‘cd’ command, like so:
+Next, navigate to your project folder using the `cd` command, like so:
 
-```
+```bash
 cd Deployment-with-create2
 ```
 
-Once you have cd into the folder, you can initialize a new npm project inside it by running the following command:
+Once you have changed the directory into the folder, you can initialize a new npm project inside it by running the following command:
 
-```
+```bash
 npm init -y
 ```
 
 This will create a “package.json” file in your project folder with default settings.
 Run the following command to initialize the Hardhat environment and create some default configuration files and folders required for building and testing smart contracts.
 
-```
+```bash
 npm install hardhat --save-dev
-npx hardhat
+npx hardhat init
 ```
 
-We will be using a typescript project for this tutorial, so click on “Create a typescript project” and enter this and other prompt options.
+We will be using a TypeScript project for this tutorial, so click on “Create a typescript project” and enter this and other prompt options.
 <br/>
 
 Finally, open your project folder in VScode by running this command in your terminal:
 
-```
+```bash
 code .
 ```
 
 This will open up your project folder in Visual Studio Code, where you can start setting up your Hardhat environment and writing your smart contract code.
 <br/>
 
-### STEP 2 - Create your Smart Contracts
+### Step 2 - Create Your Smart Contracts
 
 In the root directory of your project, you'll find a folder called "contracts". To create a new TypeScript file, simply navigate to this folder and add your new files.
 <br/>
@@ -129,7 +131,7 @@ For this tutorial, we'll need to To create these two contracts files:
 - Factory contract file
 - TestContract contract file
 
-#### Factory contract Explained
+#### Factory Contract Explained
 
 ```solidity
 // SPDX-License-Identifier: MIT
@@ -203,18 +205,17 @@ contract Factory {
     }
 }
 ```
-
 The Breakdown of the contract:
 
 - The License was specified
-- The solidity version was set
-- The contract that we are deploying [Testcontract] is imported.
+- The Solidity version was set
+- The contract that we are deploying (Testcontract) is imported.
 
-- getContractBytecode() function returns the bytecode of the contract we want to deploy.
-bytecode is what the evm understand, our solidity code is compiled to bytecode and stored on the evm so we can interract with it.
-It takes in the constructor argument of the contract we want to get the bytecode and encode the contract bytecode with the constructor parameter passed in to the function.
+- The `getContractBytecode()` function returns the bytecode of the contract we want to deploy.
+bytecode is what the EVM understands, our solidity code is compiled to bytecode and stored on the EVM so we can interact with it.
+It takes in the constructor argument of the contract we want to get the bytecode and encode the contract bytecode with the constructor parameter passed into the function.
 
-- getAddress() function returns the Computed address of the contract to be deployed
+- The `getAddress()` function returns the Computed address of the contract to be deployed
 It takes in the bytecode of the contract that we want to deploy and the salt.
 Let's break down the formula to understand it better:
 
@@ -230,9 +231,9 @@ Let's break down the formula to understand it better:
 
 6. **keccak256()**:   is a function that computes the SHA-3 hash of the input.
 
-5. **aaddress(uint160(uint(keccak256...)))**:  computes the address of the contract by taking the last 20 bytes of the hash.
+5. **address (uint160(uint(keccak256...)))**:  computes the address of the contract by taking the last 20 bytes of the hash.
 
-- createContract() function  takes in two parameters: the `salt` and the `bytecode` of the contract. The **createContract()** function creates a new contract at a deterministic address based on the salt and bytecode using create2 opcode.
+- The `createContract()` function takes in two parameters: the `salt` and the `bytecode` of the contract. The **createContract()** function creates a new contract at a deterministic address based on the salt and bytecode using create2 opcode.
 
 Inside the createContract() function, we define a contractAddress variable to hold the address of the new contract. We then use assembly code to call the `create2` opcode to create the new contract. The assembly code takes in four parameters: 0 (value), `add(bytecode, 0x20)` (memory pointer to the bytecode), `mload(bytecode)`(length of the bytecode), and the `salt` value.
 
@@ -240,7 +241,7 @@ The if `iszero(extcodesize(contractAddress))` statement checks if the contract w
 
 Finally, the `DeployedContract` event is emitted with the address of the new contract.
 
-- generateBytes() function is an helper function to compute the bytes32 value of any unsigned integer.
+- generateBytes() function is a helper function to compute the bytes32 value of any unsigned integer.
 
 #### TestContract Explained
 
@@ -305,7 +306,7 @@ contract TestContract {
 ```
 - `TestContract` is a simple wallet contract.
 
-### STEP 3 - Deploying your contracts
+### Step 3 - Deploying Your Contracts
 
 Before deploying your contract to the Celo testnet, ensure that you have added the Celo testnet RPC to your Metamask wallet, if not follow this [guide](https://docs.celo.org/blog/tutorials/3-simple-steps-to-connect-your-metamask-wallet-to-celo) to add it & also get faucet from this [site](https://faucet.celo.org/alfajores).
 <br/>
@@ -314,18 +315,18 @@ Next, add the Celo network configuration to the hardhat.config.ts file located i
 
 - Install the dotenv package:
 
-```
+```bash
 npm install dotenv
 ```
 
-- Create a .env file in the root directory of your project, paste your private key, and ETHERSCAN_API_KEY into it:
+- Create a `.env` file in the root directory of your project, paste your private key, and `ETHERSCAN_API_KEY` into it:
 
 ```
 PRIVATE_KEY=<your-private-key>
 ETHERSCAN_API_KEY = <ETHERSCAN_API_KEY>
 ```
 
-Here’s an example of how to add the Celo network configuration to your hardhat.config.ts file:
+Here’s an example of how to add the Celo network configuration to your `hardhat.config.ts` file:
 
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
@@ -419,13 +420,13 @@ main().catch((error) => {
 
 First, let's compile our smart contract using this command line in our VSCode terminal:
 
-```
+```bash
 npx hardhat compile
 ```
 
 Then, let’s deploy our contract using this command line in our VSCode terminal:
 
-```
+```bash
 npx hardhat run scripts/deploy.ts --network alfajores
 ```
 The Breakdown of the script:
@@ -437,7 +438,7 @@ The Breakdown of the script:
 - I Interacted with the `TestContract` contract passing in the deployed address.
 
 You will discover that the deployed address and the precomputed address are the same thing.
-So, before deployement we can always check for the contract address that will be generated when a particular bytecode is attached to a contract bytecode in **create2**
+So, before deployement, we can always check for the contract address that will be generated when a particular bytecode is attached to a contract bytecode in **create2**
 
 ![Deployment Output](Images/deployed.png)
 
