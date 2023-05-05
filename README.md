@@ -24,12 +24,9 @@ In eip-1014 (https://eips.ethereum.org/EIPS/eip-1014), create2 was introduced.
   - [Tutorial](#tutorial)
     - [STEP 1 - Set up Hardhat Environment](#step-1---setup-hardhat-environment)
     - [STEP 2 - Create your Smart contracts](#step-2---create-your-smart-contracts)
-      - [Factory contract file Explained](#Factory-contract-file-explained)
-      - [Minimal Proxy Contract Explained](#minimal-proxy-contract-explained)
+      - [Factory contract Explained](#Factory-contract-explained)
+      - [TestContract Explained](#TestContract-explained)
     - [STEP 3 - Deploying your contracts](#step-3---deploying-your-contracts)
-    - [STEP 4 - Verifying your contracts](#step-4---verifying-your-contracts)
-    - [STEP 5 - Interacting with the deployed contracts](#step-5---interacting-with-the-deployed-contracts)
-      - [Making a clone of the multisig wallet contract](#making-a-clone-of-the-multisig-wallet-contract)
     - [Conclusion](#conclusion)
 
 ## Objective
@@ -431,104 +428,22 @@ Then, let’s deploy our contract using this command line in our VSCode terminal
 ```
 npx hardhat run scripts/deploy.ts --network alfajores
 ```
+The Breakdown of the script:
+- I deployed the Factory contract and log the factory `contract address`
+- I get the `bytecode` and log it(passing in the parameters required)
+- I generate `salt` by passing 1 to it and also log it
+- I get precomputed address by passing salt and bytecode to it and also log it
+- I called the createContract function and passed in salt and bytecode and also log the result
+- I Interacted with the `TestContract` contract passing in the deployed address.
+
+You will discover that the deployed address and the precomputed address are the same thing.
+So, before deployement we can always check for the contract address that will be generated when a particular bytecode is attached to a contract bytecode in **create2**
 
 ![Deployment Output](Images/deployed.png)
 
-### Step 5 — Verifying your contracts
-
-To verify your contracts on the Celo Explorer, you can follow these steps:
-<br/>
-
-After your contract has been deployed, go to the [Celo Explorer](https://alfajores.celoscan.io/) and paste the contract’s address into the search field.
-<br/>
-
-After locating the address of the contract, select the “Contract” button and proceed to click on “Verify and Publish” in order to initiate the verification process.
-
-![Verification Step 1](Images/vstep1.png)
-
-Fill in the required information, such as the compiler version used to deploy your contract, the compiler type, and so on.
-
-![Verification Step 2](Images/vstep2.png)
-
-After clicking "Continue," you will be directed to another page. To authenticate your smart contract, you need to copy and paste its code into the "Enter the Solidity Contract Code below" field. If your contract's constructor function required arguments during deployment, you must also obtain and paste the ABI-encoded argument into the "Constructor Arguments ABI-encoded" field. If no arguments were provided during deployment, you can skip this step.As the contracts used in this tutorial do not contain a constructor function, we can skip that step.
-<br/>
-
-Submit the verification request by clicking the “Verify and Publish” button , and wait for it to be processed. This usually takes a few seconds.
-<br/>
-
-After successfully verifying your smart contract, you should be able to see it on the Celo Explorer with a green checkmark indicating that it has been verified.
-
-![Verification Step 3](Images/vstep3.png)
-
-You can do the same for the Minimal Proxy Factory as well.
-
-- [Multisig Wallet Contract on Celo Testnet Explorer](https://alfajores.celoscan.io/address/0x1844549ed4d5380d38cfe3d873376d988b6379c8#code)
-- [Minimal Proxy Factory Contract on Celo Testnet Explorer](https://alfajores.celoscan.io/address/0xb08cbfc3f899628622b69f2f5002be435f3c7c75#code)
-
-### STEP 5 - Interacting with the deployed contracts
-
-After the successful verification and deployment of your smart contract, the subsequent phase involves interacting with it, which often entails utilizing a Web3 interface to invoke the functions specified in the contract and work with its data. In this tutorial, we will leverage Celo Explorer to interact with our smart contract.
-
-#### Making a clone of the multisig wallet contract
-
-Navigate to the Minimal Proxy Factory Contract on Celo Testnet [Explorer](https://alfajores.celoscan.io/address/0xb08cbfc3f899628622b69f2f5002be435f3c7c75#code) and click on the "Write Contract" button, then click on "Connect to web3" which will prompt you to either connect to MetaMask or WalletConnect, chose the wallet you are using here.
-
-![Connect to Metamask](Images/connect.png)
-<br/>
-
-To create a clone of the multisig contract, we need to pass 3 arguments, which are;
-
-- The implementation contract address(Multisig wallet contract address)
-- Array of valid owners for the new clone we want to create
-- \_quorum(the number of approvals required for a transaction to be executed in the multisig).
-
-Pass in the necessary arguments , and click on the "write" button to confirm the transaction on metamask.
-
-![Create Clone](Images/write1.png)
-
-To read your minimal proxy contract and obtain the addresses of the newly created clones, click on the "Read Contract" button and read any function of your choice like so:
-
-![Read Minimal proxy](Images/readminimal.png)
-
-Click on the getCloneAddress() and pass an index of 1 to get the first created multisig wallet clone address which you can find [here](https://alfajores.celoscan.io/address/0x331E6b11e985BADEBF94de88dF17E1345C814d1F#code).
-<br/>
-
-Now, let's interact with the created multisig wallet clone contract.
-
-- Click on the “Write Contract” tab in Celo Explorer.
-- Connect to your Celo wallet by clicking on the “Connect Wallet” button and choosing your wallet provider.
-- Select the function you want to write to and fill in any required parameters.
-- Click the “Write” button to send the transaction to the blockchain.
-- Review the transaction details and confirm the gas fee.
-
-If you try to initialize the created clone, you should see something like this;
-
-![New](Images/initial.png)
-
-The reason for this is that the contract was initialized through the minimal proxy factory and its implementation was designed to prevent the state of the contract from being initialized twice, which could potentially lead to an attack on the contract.
-
-**Requesting a transaction**
-<br/>
-
-Only an address that belongs to the valid owners is able to successfully request a transaction. If any address outside of the valid owners attempts to interact with these functions, the transaction would fail and revert.
-
-![Request Transaction](Images/write2.png)
-
-**Approving a transaction**
-<br/>
-
-To validate and approve a transaction, only the designated owners who were added during the contract creation are authorized to do so. If an address that is not a valid owner attempts to trigger the approve function, the transaction approval process will fail. Additionally, before a transaction can be executed, the quorum set must be reached, meaning that the minimum required number of owners must approve the transaction.
-
-![Approve Transaction](Images/approve.png)
-
-You can then proceed to reading the state of the contract after writing to it.
-<br/>
-
-To create your own Minimal Proxy Multisig contract, you can replicate the following steps. By doing so, you will be able to deploy the contract and interact with it through celo explorer in a successful manner. Additionally, it is important to note that proper understanding and execution of these steps is crucial for ensuring the security and functionality of your contract.
-
 ### Conclusion
 
-In conclusion, the minimal proxy multisig contract provides an efficient and secure way for multiple parties to manage their assets and make decisions on the Celo platform. By utilizing minimal proxy contracts, the deployment and maintenance costs are reduced, while the flexibility and control of the multisig functionality remain intact. It is important to carefully consider the ownership structure and security measures when deploying this type of contract to ensure the safety of the assets and the integrity of the decision-making process. I appreciate you staying till the end, and I trust that you have gained valuable insights from this tutorial.
+In summary, using create2 in Solidity provides several benefits to developers, including cost savings, improved user experience, contract upgradeability, and better security.
 <br/>
 
-The link to my project repository can be found [here](https://github.com/Sayrarh/Multi-Sig-Minimal-Proxy-on-Celo).
+The link to my project repository can be found [here](https://github.com/Ultra-Tech-code/Deployment-with-create2).
