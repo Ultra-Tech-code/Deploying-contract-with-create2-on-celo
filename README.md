@@ -123,7 +123,7 @@ This will open up your project folder in Visual Studio Code, where you can start
 
 ### Step 2 - Create Your Smart Contracts
 
-In the root directory of your project, you'll find a folder called "contracts". To create a new TypeScript file, simply navigate to this folder and add your new files.
+In the root directory of your project, you'll find a folder called "contracts". To create your smart contracts files, simply navigate to this folder and add your new files.
 <br/>
 
 For this tutorial, we'll need to To create these two contracts files:
@@ -311,7 +311,7 @@ contract TestContract {
 Before deploying your contract to the Celo testnet, ensure that you have added the Celo testnet RPC to your Metamask wallet, if not follow this [guide](https://docs.celo.org/blog/tutorials/3-simple-steps-to-connect-your-metamask-wallet-to-celo) to add it & also get faucet from this [site](https://faucet.celo.org/alfajores).
 <br/>
 
-Next, add the Celo network configuration to the hardhat.config.ts file located in the root directory of your project. To enable the use of your private key for your Celo account during contract deployment, you will need to install an env file. You can store your private key in the ".env" file and use the dotenv package to load it into your Hardhat configuration. Here is an example of how to configure it:
+Next, add the Celo network configuration to the `hardhat.config.ts` file located in the root directory of your project. To enable the use of your private key for your Celo account during contract deployment, you will need to install an env file. You can store your private key in the ".env" file and use the dotenv package to load it into your Hardhat configuration. Here is an example of how to configure it:
 
 - Install the dotenv package:
 
@@ -423,6 +423,8 @@ First, let's compile our smart contract using this command line in our VSCode te
 ```bash
 npx hardhat compile
 ```
+
+>**_Note_**: Don't forget to delete the Lock.sol file as it would otherwise lead to an error when running the above command.
 
 Then, let’s deploy our contract using this command line in our VSCode terminal:
 
